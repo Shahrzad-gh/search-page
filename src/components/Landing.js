@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useCallback } from 'react'
 import { connect } from "react-redux";
 import {searchText, fetchContent} from "../store/actions/searchActions"
 
@@ -11,9 +11,21 @@ class Landing extends Component {
     handleChange = (e) =>{
         this.props.searchText(e.target.value);
         this.props.fetchContent(this.props.search, 1);
-
     }
 
+    debounce = (func) => {
+      let timer;
+      return function (...args){
+        const context = this;
+        if(timer) clearTimeout()
+        timer = setTimeout(() =>{
+          timer = null
+          func.apply(context, args)
+        }, 500)
+      }
+    }
+  
+    optimizedSearch = useCallback(this.debounce(this.handleChange),[],)
 
     render(){
       const {items} = this.props
@@ -30,7 +42,7 @@ class Landing extends Component {
         <div className="input-group mb-3 col-md-6">
           <input 
           type="text" 
-          onChange={this.handleChange} 
+          onChange={this.optimizedSearch} 
           className="form-control" 
           placeholder="Search..."/>
 
