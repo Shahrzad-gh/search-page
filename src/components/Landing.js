@@ -1,19 +1,21 @@
-import React, { Component, useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { connect } from "react-redux";
 import {searchText, fetchContent} from "../store/actions/searchActions"
 
-class Landing extends Component {
-    handleSearch =(e) =>{
+function Landing(props) {
+
+  const handleSearch =(e) =>{
         e.preventDefault();
         let page = (e.target.value * 10) - 9
-        this.props.fetchContent(this.props.search, page);
-    }
-    handleChange = (e) =>{
-        this.props.searchText(e.target.value);
-        this.props.fetchContent(this.props.search, 1);
+        props.fetchContent(props.search, page);
     }
 
-    debounce = (func) => {
+    const handleChange = (e) =>{
+        props.searchText(e.target.value);
+        props.fetchContent(props.search, 1);
+    }
+
+    const debounce = (func) => {
       let timer;
       return function (...args){
         const context = this;
@@ -25,10 +27,9 @@ class Landing extends Component {
       }
     }
   
-    optimizedSearch = useCallback(this.debounce(this.handleChange),[],)
+    const optimizedSearch = useCallback(debounce(handleChange),[],)
 
-    render(){
-      const {items} = this.props
+      const {items} = props
       let hide= true;
         items !=null ? hide=false : hide= true
     return (
@@ -42,7 +43,7 @@ class Landing extends Component {
         <div className="input-group mb-3 col-md-6">
           <input 
           type="text" 
-          onChange={this.optimizedSearch} 
+          onChange={optimizedSearch} 
           className="form-control" 
           placeholder="Search..."/>
 
@@ -50,7 +51,7 @@ class Landing extends Component {
             <button 
             className="btn btn-outline-primary" 
             value={1}
-            onClick={this.handleSearch} 
+            onClick={handleSearch} 
             type="button" 
             id="button-addon2">
               <i className="fas fa-search"></i> 
@@ -59,15 +60,19 @@ class Landing extends Component {
       </div>
       <nav aria-label="Page navigation example">
             <ul className="pagination" hidden={hide}>
-                <li className="page-item page-link" value={1} onClick={this.handleSearch}>1</li>
-                <li className="page-item page-link" value={2} onClick={this.handleSearch}>2</li>
+                <li className="page-item page-link" value={1} 
+                onClick={handleSearch}
+                >1</li>
+                <li className="page-item page-link" value={2} 
+                onClick={handleSearch}
+                >2</li>
             </ul>
         </nav>          
       </div>
     
     )
 }
-}
+
 const mapStateToprops = (state) => {
     return{
         search : state.result.search,
